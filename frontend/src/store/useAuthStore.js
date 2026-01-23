@@ -43,7 +43,7 @@ export const useAuthStore = create((set) => ({
 
       toast.success("Logged In successfully");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message);
     } finally {
       set({ isLoggingIn: false });
     }
@@ -68,7 +68,7 @@ export const useAuthStore = create((set) => ({
       toast.success("Profile Image updated successfully");
     } catch (error) {
       console.log("Error in update profile:", error);
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message);
     } finally {
       set({ isLoadingProfileImg: false });
     }
