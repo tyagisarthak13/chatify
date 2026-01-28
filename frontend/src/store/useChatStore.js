@@ -28,7 +28,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/contacts", data);
-      set({ allContacts: res.data });
+      set({ allContacts: Array.isArray(res.data) ? res.data : [] });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -40,7 +40,7 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats", data);
-      set({ chats: res.data });
+      set({ chats: Array.isArray(res.data) ? res.data : [] });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -52,7 +52,7 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      set({ messages: Array.isArray(res.data) ? res.data : [] });
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
@@ -72,10 +72,12 @@ export const useChatStore = create((set, get) => ({
       receiverId: selectedUser._id,
       text: messageData.text,
       image: messageData.image,
-      createdAt: new Date().toISOString,
+      createdAt: new Date().toISOString(),
       isOptimistic: true,
     };
-    set({ messages: [...messages, optimisticMessage] });
+    const safeMessages = Array.isArray(messages) ? messages : [];
+
+    set({ messages: [...safeMessages, optimisticMessage] });
 
     try {
       const res = await axiosInstance.post(
@@ -101,7 +103,11 @@ export const useChatStore = create((set, get) => ({
       if (!isMessageSentFromSelectedUser) return;
 
       const currentMessages = get().messages;
-      set({ messages: [...currentMessages, newMessage] });
+      const safeMessages = Array.isArray(currentMessages)
+        ? currentMessages
+        : [];
+
+      set({ messages: [...safeMessages, newMessage] });
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
